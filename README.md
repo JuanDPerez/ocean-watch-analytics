@@ -159,9 +159,12 @@ Propósito declarado: el tablero diario del operador, que consulta las posicione
 | Formato de archivo | Parquet |
 | Formato de tabla | Delta, necesario para `OPTIMIZE` |
 | Layout | Partición por `day` y `OPTIMIZE ... ZORDER BY (LAT, LON)` dentro de cada partición |
+| Tamaño de archivo | `delta.targetFileSize = 32mb` antes de `OPTIMIZE`: con el tamaño por defecto cada día quedaría en un solo archivo y el Z-order no tendría archivos que descartar |
 | Variantes comparadas | CSV, Parquet por `day`, Delta por `day`, Delta por `day` con `ZORDER`; `CLUSTER BY` como variante opcional |
 
-La evidencia (bytes, archivos totales, archivos leídos con `input_file_name()` y planes antes y después de `OPTIMIZE`) se registra en las secciones 4.5 y 4.6 del notebook. La 4.6 mide también el costo que el layout impone sobre una consulta no declarada: la trayectoria de un buque por `MMSI`.
+La evidencia se registra en las secciones 4.5 y 4.6 del notebook: bytes y archivos de la versión vigente de cada tabla (`DESCRIBE DETAIL`), archivos leídos por la consulta (`_metadata.file_path`, equivalente a `INPUT_FILE_NAME`, que Unity Catalog no admite) y planes antes y después de `OPTIMIZE`. En una prueba local con el día 1, la consulta del tablero pasó de leer 12 de 12 archivos a 1 de 8.
+
+La 4.6 compara con una consulta no declarada, la trayectoria de un buque por `MMSI`. Frente a la tabla sin ordenar también mejora (de 12 a 2 archivos en la prueba local), pero menos que el tablero; el costo real del layout elegido es frente a un layout por `MMSI`, que haría rápida la trayectoria y lento el tablero.
 
 ## 5. Gobernanza
 

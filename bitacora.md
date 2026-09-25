@@ -76,6 +76,11 @@ Decisiones:
 - 3d: se documentó el cruce en resolución 6 y su limitación de borde; Seattle probablemente no cruza por esa razón.
 - 3e: `broadcast` explícito de la lista de visitantes de un solo día.
 - Todas las preguntas tienen `explain("formatted")` y una ficha. Las afirmaciones sobre los planes se verificaron en una corrida local de Spark 3.5 con el día 1.
+- Sección 4, corregida antes de su primera corrida y probada localmente con Delta sobre el día 1:
+  - `input_file_name()` reemplazado por `_metadata.file_path`, porque Unity Catalog no admite la función.
+  - Bytes y archivos de las variantes Delta medidos con `DESCRIBE DETAIL`. Recorrer el directorio contaba también los archivos que `OPTIMIZE` reemplaza y que siguen en disco hasta un `VACUUM`, así que la medición "después" habría mostrado más archivos que "antes".
+  - `delta.targetFileSize = 32mb` antes de `OPTIMIZE`. Con el tamaño por defecto cada día quedaba en un solo archivo, y la mejora en archivos leídos venía de la compactación, no del Z-order. Con 32 MB, la consulta del tablero lee 1 de 8 archivos.
+  - El buque de ejemplo de 4.6 ya no está fijo: se elige el que pasa por la zona y más se desplaza. La prueba mostró que la trayectoria también mejora frente a la tabla sin ordenar (de 12 a 2 archivos); el texto de 4.6 se corrigió para decirlo.
 - Sección 5 con el inventario de objetos y una consulta a `information_schema` como evidencia.
 - README actualizado con las secciones 2 a 5 y la diferencia entre las 60.533.559 filas reales y la estimación de 150 millones del enunciado.
 - Se eliminó `notebooks/00test.ipynb`: su configuración ya está en la sección 1.
